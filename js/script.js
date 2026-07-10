@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    initSettings();
     initAudioEngine();
     renderCurriculum();
     setupNavigation();
@@ -221,7 +222,10 @@ function renderCurriculum() {
                     <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px;">
                         <p style="font-style: italic; margin-bottom: 15px;">Target: 100 words</p>
                         <h4 style="margin-bottom: 10px;">${unit.writing}</h4>
-                        <textarea style="width: 100%; height: 150px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 8px; font-family: inherit;" placeholder="Type your text here..."></textarea>
+                        <textarea class="writing-input" style="width: 100%; height: 150px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; border-radius: 8px; font-family: inherit;" placeholder="Type your text here..."></textarea>
+                        <button class="btn" style="margin-top: 15px; background: #25D366; color: white; border-color: #25D366;" onclick="sendWritingToTeacher(this, 'Unit ${unit.id}', \`${unit.title}\`)">
+                            📱 Send to Teacher via WhatsApp
+                        </button>
                     </div>
                 </div>` : ''}
 
@@ -234,6 +238,9 @@ function renderCurriculum() {
                         <div>
                             <h4>Discussion Prompt</h4>
                             <p>${unit.speaking}</p>
+                            <button class="btn" style="margin-top: 10px; background: #25D366; color: white; border-color: #25D366;" onclick="sendSpeakingToTeacher('Unit ${unit.id}', \`${unit.title}\`, \`${unit.speaking.replace(/"/g, "'")}\`)">
+                                📱 I'm ready to record via WhatsApp
+                            </button>
                         </div>
                     </div>
                 </div>` : ''}
@@ -256,12 +263,6 @@ function renderCurriculum() {
                         `).join('')}
                     </div>
                 </div>` : ''}
-
-                <!-- WhatsApp Homework Submission -->
-                <div class="section-block" style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
-                    <button class="btn" style="background: #25D366; color: white; border: none; font-size: 1.1rem; padding: 12px 24px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="sendToWhatsApp(this, '${unit.title}')">
-                        <span style="font-size: 1.4rem;">📱</span> Send Exercises to Teacher
-                    </button>
                 </div>
 
             </div>
@@ -314,46 +315,182 @@ window.checkCollocation = (btn, selected, correct) => {
     }
 };
 
-// AUDIO ENGINE (SpeechSynthesis)
-let audioQueue = [], isPlaying = false, isPaused = false, voices = [];
+// AUDIO ENGINE (Universal TTS)
+let currentAudio = null;
+let audioChunks = [];
+let currentChunkIndex = 0;
+let isPlaying = false;
+let isPaused = false;
+let voices = [];
 
 function initAudioEngine() {
-    if (!('speechSynthesis' in window)) return;
-    const loadVoices = () => { voices = window.speechSynthesis.getVoices(); };
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
+    if ('speechSynthesis' in window) {
+        const loadVoices = () => { voices = window.speechSynthesis.getVoices(); };
+        loadVoices();
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
 }
 
 window.playAudio = function (text) {
-    if (!text || !('speechSynthesis' in window)) return;
+    if (!text) return;
     window.stopAudio();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.85; 
-    utterance.pitch = 1.0;
     
-    // Choose best US voice
-    const usVoices = voices.filter(v => v.lang.toLowerCase().includes('en-us'));
-    if (usVoices.length > 0) utterance.voice = usVoices.find(v => v.name.includes('Google')) || usVoices[0];
+    // Split text into chunks because Google TTS has a ~200 character limit
+    // Split by sentence delimiters like . ! ?
+    audioChunks = text.match(/[^.!?]+[.!?]*/g) || [text];
+    currentChunkIndex = 0;
     
-    window.speechSynthesis.speak(utterance);
-    isPlaying = true;
+    playNextAudioChunk();
 };
 
+function playNextAudioChunk() {
+    if (currentChunkIndex >= audioChunks.length) {
+        isPlaying = false;
+        return;
+    }
+    
+    let chunk = audioChunks[currentChunkIndex].trim();
+    if (!chunk) {
+        currentChunkIndex++;
+        playNextAudioChunk();
+        return;
+    }
+    
+    isPlaying = true;
+    isPaused = false;
+    
+    // Use Google Translate TTS for high-quality, universal American pronunciation
+    const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en-US&q=${encodeURIComponent(chunk)}`;
+    currentAudio = new Audio(url);
+    
+    currentAudio.onended = () => {
+        currentChunkIndex++;
+        playNextAudioChunk();
+    };
+    
+    currentAudio.onerror = (e) => {
+        console.warn("Google TTS failed, falling back to Web Speech API", e);
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(chunk);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            const usVoices = voices.filter(v => v.lang.toLowerCase().includes('en-us'));
+            if (usVoices.length > 0) utterance.voice = usVoices.find(v => v.name.includes('Google')) || usVoices[0];
+            
+            utterance.onend = () => {
+                currentChunkIndex++;
+                playNextAudioChunk();
+            };
+            window.speechSynthesis.speak(utterance);
+        } else {
+            currentChunkIndex++;
+            playNextAudioChunk();
+        }
+    };
+    
+    currentAudio.play().catch(e => currentAudio.onerror(e));
+}
+
 window.stopAudio = function () {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     isPlaying = isPaused = false;
+    audioChunks = [];
 };
 
 window.togglePauseAudio = function () {
-    if (!('speechSynthesis' in window)) return;
-    if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-        document.getElementById('pause-audio-btn').innerHTML = '⏸️ Pause';
-    } else if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.pause();
-        document.getElementById('pause-audio-btn').innerHTML = '▶️ Resume';
+    const btn = document.getElementById('pause-audio-btn');
+    if (currentAudio) {
+        if (currentAudio.paused) {
+            currentAudio.play();
+            btn.innerHTML = '⏸️ Pause';
+        } else {
+            currentAudio.pause();
+            btn.innerHTML = '▶️ Resume';
+        }
+    } else if ('speechSynthesis' in window) {
+        if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+            btn.innerHTML = '⏸️ Pause';
+        } else if (window.speechSynthesis.speaking) {
+            window.speechSynthesis.pause();
+            btn.innerHTML = '▶️ Resume';
+        }
     }
+};
+
+// Settings & WhatsApp
+function initSettings() {
+    const savedWa = localStorage.getItem('teacherWhatsapp');
+    if (savedWa) {
+        const el = document.getElementById('teacher-whatsapp');
+        if (el) el.value = savedWa;
+    }
+    const savedName = localStorage.getItem('studentName');
+    if (savedName) {
+        const el = document.getElementById('student-name-input');
+        if (el) el.value = savedName;
+    }
+    
+    const nameInput = document.getElementById('student-name-input');
+    if (nameInput) {
+        nameInput.addEventListener('input', (e) => {
+            localStorage.setItem('studentName', e.target.value);
+        });
+    }
+}
+
+window.saveSettings = function() {
+    const wa = document.getElementById('teacher-whatsapp').value;
+    localStorage.setItem('teacherWhatsapp', wa);
+    alert('Settings saved!');
+};
+
+function getStudentName() {
+    return document.getElementById('student-name-input')?.value.trim() || 'A Student';
+}
+
+function getTeacherNumber() {
+    const num = localStorage.getItem('teacherWhatsapp');
+    if (!num) {
+        alert("Please set the Teacher's WhatsApp number in the Settings first.");
+        return null;
+    }
+    return num.replace(/\D/g, ''); // Remove non-digits
+}
+
+window.sendWritingToTeacher = function(btn, unitId, unitTitle) {
+    const teacherNum = getTeacherNumber();
+    if (!teacherNum) return;
+    
+    const textarea = btn.previousElementSibling;
+    const writingText = textarea.value.trim();
+    
+    if (!writingText) {
+        alert("Please write something before sending.");
+        return;
+    }
+    
+    const studentName = getStudentName();
+    const message = `Hello Teacher!\nI'm *${studentName}*.\n\nHere is my writing for *${unitId}: ${unitTitle}*:\n\n"${writingText}"`;
+    
+    const waUrl = `https://wa.me/${teacherNum}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
+};
+
+window.sendSpeakingToTeacher = function(unitId, unitTitle, prompt) {
+    const teacherNum = getTeacherNumber();
+    if (!teacherNum) return;
+    
+    const studentName = getStudentName();
+    const message = `Hello Teacher!\nI'm *${studentName}*.\n\nI am ready to send my Speaking audio for *${unitId}: ${unitTitle}*.\n\nPrompt: "${prompt}"\n\n(I will send the voice note next!)`;
+    
+    const waUrl = `https://wa.me/${teacherNum}?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
 };
 
 // Attendance
