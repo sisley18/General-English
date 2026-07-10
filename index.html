@@ -60,9 +60,27 @@
                 <div id="attendance-list" class="attendance-list"></div>
             </div>
         </details>
+
+        <!-- Settings -->
+        <details class="attendance-block" style="margin-top: 10px;">
+            <summary class="attendance-header">⚙️ Settings</summary>
+            <div class="attendance-content">
+                <div class="form-group">
+                    <label for="teacher-whatsapp">Teacher WhatsApp (e.g. 549351...):</label>
+                    <input type="text" id="teacher-whatsapp" class="att-input" placeholder="e.g. 549112345678">
+                </div>
+                <button class="btn att-save-btn" onclick="saveSettings()">Save Settings 💾</button>
+            </div>
+        </details>
     </div>
 
     <div class="container" id="main-content">
+
+        <!-- Student Profile -->
+        <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <label for="student-name-input" style="font-weight: 500; color: var(--accent-gold);">🧑‍🎓 Student Name:</label>
+            <input type="text" id="student-name-input" placeholder="Enter your full name..." style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: #fff; flex-grow: 1; max-width: 300px;">
+        </div>
 
         <!-- Level Selector Hub -->
         <div class="level-selector-hub" id="level-hub">

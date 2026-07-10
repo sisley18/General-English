@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupProtection();
     initAttendance();
+    loadSettings();
 });
 
 // Content Protection
@@ -256,6 +257,13 @@ function renderCurriculum() {
                     </div>
                 </div>` : ''}
 
+                <!-- WhatsApp Homework Submission -->
+                <div class="section-block" style="text-align: center; margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px;">
+                    <button class="btn" style="background: #25D366; color: white; border: none; font-size: 1.1rem; padding: 12px 24px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="sendToWhatsApp(this, '${unit.title}')">
+                        <span style="font-size: 1.4rem;">📱</span> Send Exercises to Teacher
+                    </button>
+                </div>
+
             </div>
         `;
         container.appendChild(unitBlock);
@@ -355,4 +363,112 @@ function initAttendance() {
 }
 window.saveAttendance = function () {
     alert("Attendance saved!");
+};
+
+// Settings (Teacher WhatsApp)
+window.saveSettings = function () {
+    const waInput = document.getElementById('teacher-whatsapp');
+    if (waInput) {
+        localStorage.setItem('teacherWhatsApp', waInput.value.trim());
+        alert("Settings saved successfully!");
+    }
+};
+
+function loadSettings() {
+    const waInput = document.getElementById('teacher-whatsapp');
+    const savedWa = localStorage.getItem('teacherWhatsApp');
+    if (waInput && savedWa) {
+        waInput.value = savedWa;
+    }
+}
+
+// WhatsApp Submission Logic
+window.sendToWhatsApp = function (btn, unitTitle) {
+    const studentName = document.getElementById('student-name-input')?.value.trim();
+    if (!studentName) {
+        alert("Please enter your Student Name at the top of the page before sending exercises.");
+        document.getElementById('student-name-input').focus();
+        return;
+    }
+
+    const teacherPhone = localStorage.getItem('teacherWhatsApp');
+    if (!teacherPhone) {
+        alert("Teacher WhatsApp number is not set. Please set it in the Settings (Admin Controls).");
+        return;
+    }
+
+    const unitBlock = btn.closest('.unit-block');
+    let message = `*Homework Submission*%0A`;
+    message += `🧑‍🎓 *Student:* ${studentName}%0A`;
+    message += `📚 *Unit:* ${currentLevel} - ${unitTitle}%0A%0A`;
+
+    // Gather Writing Tasks
+    const textareas = unitBlock.querySelectorAll('textarea');
+    let writingCount = 1;
+    textareas.forEach(ta => {
+        if (ta.value.trim() !== '') {
+            message += `*Writing Task ${writingCount}:*%0A${ta.value.trim()}%0A%0A`;
+            writingCount++;
+        }
+    });
+
+    // Gather Quizzes
+    // Quizzes in this app are visually indicated by button background color.
+    // Green = #10b981 / rgba(16, 185, 129, 0.2)
+    // Red = #ef4444 / rgba(239, 68, 68, 0.2)
+    const optionGrids = unitBlock.querySelectorAll('.options-grid');
+    let correctTotal = 0;
+    let questionsTotal = 0;
+    
+    optionGrids.forEach(grid => {
+        const buttons = grid.querySelectorAll('button');
+        let answeredCorrectly = false;
+        let answeredWrong = false;
+        
+        buttons.forEach(b => {
+            const bg = b.style.backgroundColor || b.style.background;
+            if (bg.includes('10b981') || bg.includes('16, 185, 129') || bg.includes('52, 211, 153')) {
+                answeredCorrectly = true;
+            } else if (bg.includes('ef4444') || bg.includes('239, 68, 68')) {
+                answeredWrong = true;
+            }
+        });
+
+        // Some option grids are just syllables, some are collocations, some are quizzes.
+        // We will just count any grid where a correct/incorrect attempt was made.
+        if (answeredCorrectly || answeredWrong) {
+            questionsTotal++;
+            if (answeredCorrectly && !answeredWrong) {
+                // If they only have green, it's correct. Wait, they might click multiple.
+                // We'll just count how many green buttons there are total vs red total for simplicity.
+            }
+        }
+    });
+
+    // An easier way: just count all green buttons vs total clicked grids
+    const allButtons = unitBlock.querySelectorAll('button');
+    let greens = 0;
+    let reds = 0;
+    allButtons.forEach(b => {
+        const bg = b.style.backgroundColor || b.style.background;
+        if (bg.includes('10b981') || bg.includes('16, 185, 129') || bg.includes('52, 211, 153')) {
+            greens++;
+        } else if (bg.includes('ef4444') || bg.includes('239, 68, 68')) {
+            reds++;
+        }
+    });
+
+    if (greens > 0 || reds > 0) {
+        message += `*Quiz Scores*%0A`;
+        message += `✅ Correct Answers: ${greens}%0A`;
+        message += `❌ Incorrect Attempts: ${reds}%0A`;
+    }
+
+    if (writingCount === 1 && greens === 0 && reds === 0) {
+        alert("You haven't completed any exercises in this unit yet!");
+        return;
+    }
+
+    const whatsappUrl = `https://wa.me/${teacherPhone}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
 };
