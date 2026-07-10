@@ -1,0 +1,32 @@
+:root {
+    /* Color Palette - Teal/Emerald Theme for A1-A2 */
+    --bg-primary: #0d7377;
+    /* Deep Teal Background */
+    --bg-secondary: #0a5c5f;
+    /* Darker Teal */
+    --text-primary: #ffffff;
+    --text-secondary: #e0f7f7;
+    /* Light Cyan Cream */
+
+    /* Accent Colors */
+    --accent-gold: #86efac;
+    /* Light Green */
+    --accent-gold-dim: rgba(134, 239, 172, 0.3);
+    --accent-electric: #5eead4;
+    /* Teal Accent */
+    --accent-dark: #064e3b;
+    /* Very Dark Green */
+
+    --gradient-teal: linear-gradient(135deg, #0d7377 0%, #0a5c5f 100%);
+    --gradient-accent: linear-gradient(135deg, #5eead4 0%, #2dd4bf 100%);
+
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-heading: 'Outfit', sans-serif;
+
+    --spacing-sm: 8px;
+    --spacing-md: 24px;
+    --spacing-lg: 48px;
+
+    --border-radius: 16px;
+    --shadow-glow: 0 0 30px rgba(0, 0, 0, 0.2);
+}
