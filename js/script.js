@@ -132,12 +132,23 @@ function renderCurriculum() {
                 ${unit.grammar ? `
                 <div class="section-block">
                     <span class="section-label grammar">Grammar</span>
-                    <h3>${unit.grammar.title}</h3>
-                    <div class="grammar-box">
-                        <p>${unit.grammar.explanation}</p>
-                        <p style="font-family:monospace; color:var(--accent-gold);">Ex: ${unit.grammar.example}</p>
-                    </div>
-                    ${unit.grammar.quizzes ? renderQuiz(unit.grammar.quizzes, true) : ''}
+                    ${Array.isArray(unit.grammar) ? unit.grammar.map(g => `
+                        <div style="margin-bottom: 25px; border-bottom: 1px dashed rgba(255,255,255,0.2); padding-bottom: 15px;">
+                            <h3>${g.title}</h3>
+                            <div class="grammar-box">
+                                <p>${g.explanation}</p>
+                                <p style="font-family:monospace; color:var(--accent-gold);">Ex: ${g.example}</p>
+                            </div>
+                            ${g.quizzes ? renderQuiz(g.quizzes, true) : ''}
+                        </div>
+                    `).join('') : `
+                        <h3>${unit.grammar.title}</h3>
+                        <div class="grammar-box">
+                            <p>${unit.grammar.explanation}</p>
+                            <p style="font-family:monospace; color:var(--accent-gold);">Ex: ${unit.grammar.example}</p>
+                        </div>
+                        ${unit.grammar.quizzes ? renderQuiz(unit.grammar.quizzes, true) : ''}
+                    `}
                 </div>` : ''}
 
                 <!-- 5. Verb Patterns -->
@@ -245,7 +256,18 @@ function renderCurriculum() {
                     </div>
                 </div>` : ''}
 
-                <!-- 10. Videos -->
+                <!-- 10. Progress Test -->
+                ${unit.progress_test ? `
+                <div class="section-block" style="border: 2px solid #00c8ff; background: rgba(0, 200, 255, 0.05);">
+                    <span class="section-label" style="background: rgba(0, 200, 255, 0.2); color: #00c8ff;">Progress Test 📝</span>
+                    <h3>${unit.progress_test.title}</h3>
+                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #fff;">${unit.progress_test.description}</p>
+                    </div>
+                    ${renderQuiz(unit.progress_test.quizzes)}
+                </div>` : ''}
+
+                <!-- 11. Videos -->
                 ${unit.videos && unit.videos.length > 0 ? `
                 <div class="section-block">
                     <span class="section-label" style="background: rgba(255, 0, 0, 0.2); color: #ff6b6b;">📺 Videos</span>

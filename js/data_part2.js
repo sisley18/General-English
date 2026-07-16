@@ -20,15 +20,28 @@ const dataPart2 = {
                     { q: "When does he go to work?", options: ["8:30 AM", "9:00 AM", "7:30 AM"], correct: 0 }
                 ]
             },
-            grammar: {
-                title: "Present Simple",
-                explanation: "Use the present simple for habits and routines. Add -s or -es for he/she/it.",
-                example: "I wake up at 7 AM. She wakes up at 6 AM.",
-                quizzes: [
-                    { question: "He _____ breakfast at 8 AM.", options: ["have", "has", "having"], correct: 1 },
-                    { question: "They _____ to school by bus.", options: ["go", "goes", "going"], correct: 0 }
-                ]
-            },
+            grammar: [
+                {
+                    title: "Present Simple",
+                    explanation: "Use the present simple for habits and routines. Add -s or -es for he/she/it.",
+                    example: "I wake up at 7 AM. She wakes up at 6 AM.",
+                    quizzes: [
+                        { question: "He _____ breakfast at 8 AM.", options: ["have", "has", "having"], correct: 1 },
+                        { question: "They _____ to school by bus.", options: ["go", "goes", "going"], correct: 0 }
+                    ]
+                },
+                {
+                    title: "Telling the Time",
+                    explanation: "Use 'It's...' to tell the time. For minutes 1-30 use 'past', for minutes 31-59 use 'to'.",
+                    example: "It's five o'clock (5:00). It's half past two (2:30). It's a quarter to four (3:45).",
+                    quizzes: [
+                        { question: "What time is 3:15?", options: ["It's a quarter past three", "It's a quarter to three", "It's half past three"], correct: 0 },
+                        { question: "What time is 4:45?", options: ["It's a quarter past four", "It's a quarter to five", "It's half past four"], correct: 1 },
+                        { question: "What time is 7:30?", options: ["It's half past seven", "It's seven past thirty", "It's half to seven"], correct: 0 },
+                        { question: "What time is 9:00?", options: ["It's nine past", "It's nine o'clock", "It's a quarter to nine"], correct: 1 }
+                    ]
+                }
+            ],
             pronunciation: {
                 word_stress: [
                     { word: "BREAK-fast", syllables: ["BREAK", "fast"], correct: 0 },
@@ -53,19 +66,43 @@ const dataPart2 = {
                 { word: "Cheese", ipa: "tʃiːz", def: "A food made from the pressed curds of milk" },
                 { word: "Restaurant", ipa: "ˈrestrɒnt", def: "A place where people pay to sit and eat meals" }
             ],
-            grammar: {
-                title: "Countable and Uncountable Nouns",
-                explanation: "Use 'a/an' with singular countable nouns. Use 'some' with plural or uncountable nouns in positive sentences.",
-                example: "I have an apple. I want some water.",
-                quizzes: [
-                    { question: "I would like _____ milk, please.", options: ["a", "an", "some"], correct: 2 },
-                    { question: "She eats _____ orange every day.", options: ["a", "an", "some"], correct: 1 }
-                ]
-            },
+            grammar: [
+                {
+                    title: "Countable and Uncountable Nouns",
+                    explanation: "Use 'a/an' with singular countable nouns. Use 'some' with plural or uncountable nouns in positive sentences.",
+                    example: "I have an apple. I want some water.",
+                    quizzes: [
+                        { question: "I would like _____ milk, please.", options: ["a", "an", "some"], correct: 2 },
+                        { question: "She eats _____ orange every day.", options: ["a", "an", "some"], correct: 1 }
+                    ]
+                },
+                {
+                    title: "Some and Any",
+                    explanation: "Use 'some' in affirmative sentences. Use 'any' in negative sentences and questions.",
+                    example: "We have some apples. We don't have any eggs. Do you have any milk?",
+                    quizzes: [
+                        { question: "I don't have _____ money.", options: ["some", "any", "a"], correct: 1 },
+                        { question: "Are there _____ students in the classroom?", options: ["some", "any", "an"], correct: 1 },
+                        { question: "I bought _____ fresh vegetables today.", options: ["some", "any", "a"], correct: 0 },
+                        { question: "Is there _____ milk in the fridge?", options: ["some", "any", "a"], correct: 1 }
+                    ]
+                }
+            ],
             collocations: [
                 { pair: ["Have", "breakfast"], context: "I usually _____ breakfast at 8 AM.", distractors: ["Do", "Make"] },
                 { pair: ["Drink", "water"], context: "You should _____ water every day.", distractors: ["Eat", "Take"] }
             ],
+            progress_test: {
+                title: "Unit 3 & 4 Progress Test",
+                description: "Test your knowledge of the vocabulary and grammar from Units 3 and 4.",
+                quizzes: [
+                    { question: "Choose the correct verb: She _____ breakfast at 7 AM.", options: ["have", "has", "having"], correct: 1 },
+                    { question: "What time is 2:15?", options: ["A quarter past two", "A quarter to two", "Half past two"], correct: 0 },
+                    { question: "I would like _____ cheese, please.", options: ["a", "an", "some", "any"], correct: 2 },
+                    { question: "We don't have _____ apples left.", options: ["some", "any", "a", "an"], correct: 1 },
+                    { question: "_____ you have _____ brothers or sisters?", options: ["Do / some", "Does / any", "Do / any"], correct: 2 }
+                ]
+            },
             writing: "Write a short paragraph about your favorite food and what you usually eat for lunch.",
             speaking: "Roleplay: Ordering food in a restaurant."
         },
