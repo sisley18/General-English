@@ -72,6 +72,19 @@ const dataPart4 = {
                     { q: "Has the speaker been to China?", options: ["Yes", "No"], correct: 1 }
                 ]
             },
+            progress_test: {
+                title: "Final Progress Test (A2)",
+                description: "Test your knowledge of the grammar and vocabulary covered in the A2 course (Units 1-6).",
+                quizzes: [
+                    { question: "My brother is _____ than me.", options: ["tall", "taller", "the tallest"], correct: 1 },
+                    { question: "This is the _____ expensive restaurant in the city.", options: ["more", "most", "much"], correct: 1 },
+                    { question: "You _____ wear a uniform at this school. It's the rule.", options: ["have to", "don't have to", "shouldn't"], correct: 0 },
+                    { question: "You have a stomachache. You _____ eat so much junk food.", options: ["should", "shouldn't", "don't have to"], correct: 1 },
+                    { question: "I _____ travel to London next summer. I already bought the tickets!", options: ["will", "am going to", "go to"], correct: 1 },
+                    { question: "_____ you ever _____ to Paris?", options: ["Have / be", "Have / been", "Did / go"], correct: 1 },
+                    { question: "I have _____ finished my homework. I can go out now.", options: ["already", "yet", "ever"], correct: 0 }
+                ]
+            },
             writing: "Write about three interesting things you have done in your life, and one thing you have never done but want to do.",
             speaking: "Play 'Find someone who... has done X'."
         }
